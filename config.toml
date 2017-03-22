@@ -1,0 +1,30 @@
+baseurl = "https://mtn.github.io/"
+theme = "cocoa-eh"
+builddrafts = true
+canonifyurls = true
+contentdir = "content"
+languageCode = "en-US"
+layoutdir = "layouts"
+publishdir = "public"
+author = "Michael Noronha"
+title = "mtn"
+pluralizelisttitles = false
+latestpostcount = 3
+
+[permalinks]
+blog = "blog/:slug/"
+
+[params]
+dateform = "Jan 2, 2006"
+dateformfull = "Mon Jan 2 2006 15:04:05 MST"
+description = "Blog and personal website"
+copyright = "Copyright © 2017 Michael Noronha"
+logofile = "img/logo.png"
+faviconfile = "img/logo.png"
+highlightjs = true
+progressively = true
+lang = "en"
+github = "mtn"
+email = "mnoronha@uchicago.edu"
+linkedin = "mnoronha"
+social_banner = "img/banner.png"
