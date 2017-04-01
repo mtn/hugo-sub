@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Blog and personal website">
+
+
+<meta property="twitter:title" content="Snake with GNU ncurses! -- Part I, ncurses basics">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:image" content="https://mtn.github.io/img/banner.png">
+
+<meta property="twitter:description" content="">
+
+<title>
+
+
+     mtn - Snake with GNU ncurses! -- Part I, ncurses basics 
+
+</title>
+<link rel="canonical" href="https://mtn.github.io/posts/snake_part1/">
+
+
+<link rel="stylesheet" href="https://mtn.github.io/css/main.v0.9.1.css">
+<link rel="stylesheet" href="https://mtn.github.io/css/ionicons.min.css">
+
+
+  <link rel="stylesheet" href="https://mtn.github.io/css/highlight.min.css">
+
+
+
+  <link rel="stylesheet" href="https://mtn.github.io/css/progressively.min.css">
+
+
+
+
+
+<link rel="shortcut icon"
+
+    href="https://mtn.github.io/img/logo.png"
+
+>
+
+
+
+
+</head>
+
+
+<body>
+
+
+<section class="header">
+
+    <div class="container">
+        <a href="https://mtn.github.io/"><img class="logo" src="https://mtn.github.io/img/logo.png" alt="logo" /></a>
+        <div class="content">
+            <a href="https://mtn.github.io/"><div class="name"><h1>mtn</h1></div></a>
+            <nav>
+                <ul>
+                    
+                    
+                        
+                    
+                        
+                            
+                            <a href="https://mtn.github.io/posts"><li>posts</li></a>
+                            
+                        
+                    
+                        
+                            
+                            <a href="https://mtn.github.io/projects"><li>projects</li></a>
+                            
+                        
+                    
+                    
+                        
+                            <a href="https://mtn.github.io/about/"><li>about</li></a>
+                        
+                    
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="main">
+    <div class="container">
+        <div class="content">
+            <div class="page-heading">
+
+    Snake with GNU ncurses! -- Part I, ncurses basics
+
+</div>
+
+            <div class="markdown">
+                
+    
+    
+
+<p>As my first game, I made snake in C using the graphics library ncurses! There are probably several dozen other languages that would have also sufficed or been better but I chose C because I picked it up pretty recently, so making a project from scratch was a decent challenge. Over two posts, I&rsquo;ll walk through some of the process, including decisions I made along the way and the rationale behind them. In this one, I&rsquo;ll set up the basic features of ncurses that I found useful. What I write should be <em>mostly</em> self-contained, but the links should clear things up in cases where I&rsquo;m not.</p>
+
+<h1 id="what-s-ncurses">What&rsquo;s ncurses?</h1>
+
+<p>ncurses is probably the easiest graphics library to get started with (not that I have much other experience yet), and is very well documented <a href="http://tldp.org/HOWTO/NCURSES-Programming-HOWTO/">here</a>. It came about as a successor to curses, a wrapper over terminal graphics functionality that allows us to render pretty things on different terminals without working with messy raw values. To the best of my knowledge, the necessary header is included with the Xcode developer tools for MacOS, and is available through <code>apt-get</code> (or your default package manager) on linux. To make something simple like snake, there are only a few key concepts you need to wrap your mind around. Starting simple is good; I first stumbled on ncurses after googling &ldquo;C terminal graphics&rdquo; when working on a (not-yet-finished) Conway&rsquo;s Game of Life simulator, and felt I was making too many decisions because I wanted to progress in the project without getting a feel for the full library. There&rsquo;s lots more, though, which I&rsquo;ll definitely be exploring in the future and you should check out after reading this post too!</p>
+
+<h2 id="initialization-functions">Initialization Functions</h2>
+
+<p>To initialize our ncurses session, we first call <code>initscr()</code>. There are also a few functions we call at the start our program in order to define basic behaviors:</p>
+
+<p><code>cbreak()</code> &ndash; Disables line buffering and also allows us to process control sequences (eg. CTRL^C)</p>
+
+<p><code>noecho()</code> &ndash; Turns off input echoing, as its name suggests :). This means that the keys you press will not be printed on the screen like they normally are when you type into the terminal</p>
+
+<p><code>keypad(stdscr,TRUE)</code> &ndash; Allows us to enable processing of additional keys like the function keys and more importantly, the arrow keys (unless you like to play snake with WASD or something, I guess). Note the first argument, <code>stdscr</code> can be varied if we want to do the same thing for windows, which I&rsquo;ll talk about soon</p>
+
+<p><code>curs_set(0)</code> &ndash; Hides the cursor, which we wouldn&rsquo;t want distracting from our beautifully designed game ;)</p>
+
+<p><code>halfdelay()</code> &ndash;  Sets an upper bound on the amount of time the program waits for input (after which it returns ERR). Sounds useful, right?</p>
+
+<h2 id="output-and-input">Output and Input</h2>
+
+<p>ncurses essentially gives you a grid systems of rows and columns. Within this basic grid, we can do simple things like move around and print characters but, as we&rsquo;ll see, also introduce more additional structures. As with many similar programs, the top left corner of the screen is (0,0) rather than the bottom left as is conventional elsewhere. What is rather more unique is that throughout ncurses where coordinate arguments are used, the &ldquo;y&rdquo; is specified before the &ldquo;x.&rdquo; A few functions!</p>
+
+<h3 id="our-output-functions">Our Output Functions</h3>
+
+<p><code>move(y,x)</code> &ndash; Allows us to move the cursor to a specified location on the screen. Note that if we hide the cursor (call <code>curs_set(0)</code>), this doesn&rsquo;t produce any externally-observable change</p>
+
+<p><code>addch(ch | ATTRIBUTES)</code> &ndash; Adds a character at the current location of the cursor. Note that we can OR <a href="http://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/attrib.html">attributes</a></p>
+
+<p><code>mvaddch(y, x, ch)</code> &ndash; A composition of the prior two functions</p>
+
+<p><code>printw(str)</code> &ndash; The <code>printf</code> of ncurses</p>
+
+<p><code>mvprintw(y, x, str)</code> &ndash; Similar to <code>mvaddch</code>, a composition of <code>move</code> and <code>printw</code></p>
+
+<p><code>attron(ATTR_X)</code> &ndash; Allows us to &ldquo;switch on&rdquo; an attribute that impacts how text is displayed (eg. A_BOLD). Turned off by <code>attroff</code>.</p>
+
+<h3 id="our-input-functions">Our Input Functions</h3>
+
+<p><code>getch()</code> &ndash; Reads a character from the terminal. Note that unless <code>cbreak</code> or <code>raw</code> are called, input will be newline-buffered</p>
+
+<p>And actually, that&rsquo;s the only one! There are certainly others with fairly self-explanatory names, such as <code>scanw</code>, but snake is relatively simple and we won&rsquo;t be needing them :).</p>
+
+<h2 id="a-few-others">A Few Others&hellip;</h2>
+
+<p>There are a few other functions that we&rsquo;ll find useful. One of these is <code>getmaxyx(stdscr,y,x)</code>, which allows us to get the dimensions of our current screen (or window, if we alter the first parameter). We can use these numbers to calculate the coordinates we&rsquo;ll render elements of our interface.</p>
+
+<h2 id="windows">Windows</h2>
+
+<p>When we call <code>initscr</code>, we are given a clean canvas to work with &ndash; the entire terminal. Windows allow us to add additional &ldquo;layers&rdquo; to this canvas, which is useful if we want to manage separate parts of the display independently. Example cases would be the game itself or a score display, which we might want to update multiple times per second asynchronously. There are a few special functions, though on the whole windows behave mostly in a similar way to the screen itself:</p>
+
+<p><code>newwin(height, width, starty, startx)</code> &ndash; Initializes a new window at the coordinates <code>(starty,startx)</code> relative to <code>stdscr</code></p>
+
+<p><code>delwin(win)</code> &ndash; Deletes a window, deallocating its memory</p>
+
+<p>Apart from these two functions, windows can mostly be manipulated by functions named after their standard counterparts with a &ldquo;w&rdquo; appended to the start. For example, <code>printw</code> becomes <code>wprintw</code>. The first argument to all these functions is the some window.</p>
+
+<h2 id="refresh">Refresh</h2>
+
+<p>Congrats! You&rsquo;re well on your way to snake in ncurses. But if you&rsquo;ve tried anything out yet, you&rsquo;ll have realized there&rsquo;s a problem. Maybe you have the wrong version&hellip;? No! I&rsquo;ve just left the most important part for last :). On this last point, it&rsquo;s helpful to think of a virtual screen that exists separately from your physical screen. Changes we make go into effect immediately on the virtual screen &ndash; if we print something to the screen, for example &ndash; but we need to push them onto the physical screen somehow. This is where <code>refresh()</code> comes in (and correspondingly, <code>wrefresh</code>)! Whenever we make a change, we need to <em>refresh</em> our screen in order to see it in real life. When in doubt, check if you&rsquo;ve done this.</p>
+
+<h2 id="that-was-a-long-list">That was a long list&hellip;</h2>
+
+<p>&hellip;so it&rsquo;s time for an example (built on top of code from Papdala&rsquo;s guide)! I&rsquo;ll talk through building a menu, and we&rsquo;ll be able to reuse a lot of this code in our eventual program. First, let&rsquo;s use our initialization functions to set up the environment:</p>
+
+<pre><code class="language-c">#include &lt;ncurses.h&gt;
+#include &lt;string.h&gt;
+
+int main()
+{
+    initscr();                    // Start curses mode
+    noecho();                     // Input is not echoed to the screen
+    curs_set(0);                  // Hides the cursor
+    cbreak();                     // Input isn't line-buffered
+
+    int yMax, xMax, menuHeight=10, menuWidth=40;
+    getmaxyx(stdscr,yMax,xMax);             // Stores the windows dimensions
+
+    // Creates a new window W, calculating it's position from
+    WINDOW *W = newwin(menuHeight,menuWidth,(yMax-menuHeight)/2,(xMax-menuWidth)/2);
+    keypad(W,TRUE);
+    refresh();
+    box(W,0,0);
+
+    wattron(W,A_REVERSE);
+    char* title = &quot;Title&quot;;
+    mvwprintw(W,1,(menuWidth-strlen(title))/2,title);
+    wattroff(W,A_REVERSE);
+
+    // Variable highlight determines which menu item is emphasized
+    int highlight = 0, numOptions = 3;
+    char* options[3] = { &quot;Option 1&quot;, &quot;Option 2&quot;, &quot;Option 3&quot; };
+    while(true){
+        for(int i = 0; i &lt; numOptions; ++i){
+            if(i==highlight){
+                wattron(W,A_BOLD);           // Bold currently highlighted option
+                mvwprintw(W,5+i,5,&quot;*&quot;);      // A asterisk for more emphasis
+            }
+            else
+                mvwprintw(W,5+i,5,&quot; &quot;);      // Clear old asterisks
+            mvwprintw(W,5+i,6,options[i]);   // Print each option
+            wattroff(W,A_BOLD);              // Turn off bold, if it was on
+        }
+        int input = wgetch(W); // Get input and store it in the variable input
+
+        switch(input){
+            case KEY_DOWN:
+                if(highlight &lt; 2) highlight++;  // Check, then move highlight down
+                break;
+            case KEY_UP:
+                if(highlight &gt; 0) highlight--;  // Check, then move highlight up
+            default:
+                break;
+        }
+        wrefresh(W);            // Refreshes the window
+
+        // A return value of 10 from wgetch indicates that enter was pressed
+        if(input==10) break;
+    }
+
+    // Move to the bottom left and print
+    mvprintw(yMax-1,0&quot;The option selected was %d&quot;,highlight+1);
+
+    getch();                      // Wait for input before proceeding
+    delwin(W);                    // Deletes the window and deallocates its memory
+    endwin();                     // End curses mode
+}
+</code></pre>
+
+<p>We first initialized our environment, entering <code>curses</code> mode. The menu is rendered using a window, W, and continuously updated using a while loop. Input is gathered from the keyboard at each iteration,  with the loop terminating once the enter key is pressed (input == 10). The value of highlight at the time that enter is pressed indicates the user&rsquo;s choice, which we print to the screen with <code>printw</code>. Usually, we&rsquo;d have to call <code>refresh</code> to have it actually display, but it turns out that <code>getch</code> already does this for us, so we&rsquo;re done!</p>
+
+<p>Wow, that was a lot! Hopefully the example helped draw everything together. Don&rsquo;t worry if you can&rsquo;t remember more than a few of the functions presented above &ndash; as you start to work with ncurses, you&rsquo;ll quickly internalize them. Until then, I hope this will be a good reference. If you&rsquo;re feeling adventurous, poke around for other functions in the <a href="http://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/attrib.html">how-to</a> and build upon the example I provided. Good luck!</p>
+
+
+            </div>
+        </div>
+    </div>
+</section>
+<section class="footer">
+    <div class="container">
+        <div class="copyright">
+
+        
+            <a href="https://mtn.github.io/license">Copyright © 2017 Michael Noronha</a>
+        
+
+        </div>
+        <div class="icons">
+
+        
+            <a href="https://github.com/mtn" target="_blank">
+                <i class="icon ion-social-github" title="github"></i>
+            </a>
+        
+
+        
+
+        
+            <a href="https://www.linkedin.com/in/mnoronha" target="_blank">
+                <i class="icon ion-social-linkedin" title="linkedin"></i>
+            </a>
+        
+
+        
+            <a href="mailto:mnoronha@uchicago.edu">
+                <i class="icon ion-ios-email larger" title="email"></i>
+            </a>
+        
+
+        
+            <a href="https://mtn.github.io/index.xml">
+                <i class="icon ion-social-rss larger" title="rss"></i>
+            </a>
+        
+
+        </div>
+    </div>
+</section>
+
+
+  <script src="https://mtn.github.io/js/highlight.min.js" defer></script>
+  
+
+
+
+  <script src="https://mtn.github.io/js/progressively.min.js" defer></script>
+
+
+<script>
+  window.onload = function() {
+    
+      hljs.initHighlighting();
+    
+    
+      progressively.init({delay: 30, throttle: 50});
+    
+  };
+</script>
+
+</body>
+</html>
+

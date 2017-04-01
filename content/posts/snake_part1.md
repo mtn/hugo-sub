@@ -1,12 +1,11 @@
 +++
-draft = true
 date = "2017-03-28T21:39:31-05:00"
 title = "Snake with GNU ncurses! -- Part I, ncurses basics"
 
 +++
 
 
-As my first game, I made snake in C using the graphics library ncurses! There are probably several dozen other languages that would have also sufficed or been better but I chose C because I picked it up pretty recently, so making a project from scratch was a decent challenge. Over two posts, I'll walk through some of the process, including decisions I made along the way and the rationale behind them. In this one, I'll set up the basic features of ncurses that I found useful. What I write should be _mostly_ self-contained, but when included links should clear things up in cases where I'm not.
+As my first game, I made snake in C using the graphics library ncurses! There are probably several dozen other languages that would have also sufficed or been better but I chose C because I picked it up pretty recently, so making a project from scratch was a decent challenge. Over two posts, I'll walk through some of the process, including decisions I made along the way and the rationale behind them. In this one, I'll set up the basic features of ncurses that I found useful. What I write should be _mostly_ self-contained, but the links should clear things up in cases where I'm not.
 
 # What's ncurses?
 
@@ -42,6 +41,8 @@ ncurses essentially gives you a grid systems of rows and columns. Within this ba
 
 `mvprintw(y, x, str)` -- Similar to `mvaddch`, a composition of `move` and `printw`
 
+`attron(ATTR_X)` -- Allows us to "switch on" an attribute that impacts how text is displayed (eg. A_BOLD). Turned off by `attroff`.
+
 ### Our Input Functions
 
 `getch()` -- Reads a character from the terminal. Note that unless `cbreak` or `raw` are called, input will be newline-buffered
@@ -68,5 +69,74 @@ Congrats! You're well on your way to snake in ncurses. But if you've tried anyth
 
 ## That was a long list...
 
-Wow, that was a lot! Don't worry if you can't remember more than a few. As you start to work with ncurses, you'll quickly internalize them. Until then, I hope this will be a good reference. Before moving on, it's worth making a simple program that uses each of the functions above. If you're feeling adventurous, poke around for other functions in the [HOWTO](http://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/attrib.html) and try out some others. Good luck!
+...so it's time for an example (built on top of code from Papdala's guide)! I'll talk through building a menu, and we'll be able to reuse a lot of this code in our eventual program. First, let's use our initialization functions to set up the environment:
+
+```c
+#include <ncurses.h>
+#include <string.h>
+
+int main()
+{
+    initscr();                    // Start curses mode
+    noecho();                     // Input is not echoed to the screen
+    curs_set(0);                  // Hides the cursor
+    cbreak();                     // Input isn't line-buffered
+
+    int yMax, xMax, menuHeight=10, menuWidth=40;
+    getmaxyx(stdscr,yMax,xMax);             // Stores the windows dimensions
+
+    // Creates a new window W, calculating it's position from
+    WINDOW *W = newwin(menuHeight,menuWidth,(yMax-menuHeight)/2,(xMax-menuWidth)/2);
+    keypad(W,TRUE);
+    refresh();
+    box(W,0,0);
+
+    wattron(W,A_REVERSE);
+    char* title = "Title";
+    mvwprintw(W,1,(menuWidth-strlen(title))/2,title);
+    wattroff(W,A_REVERSE);
+
+    // Variable highlight determines which menu item is emphasized
+    int highlight = 0, numOptions = 3;
+    char* options[3] = { "Option 1", "Option 2", "Option 3" };
+    while(true){
+        for(int i = 0; i < numOptions; ++i){
+            if(i==highlight){
+                wattron(W,A_BOLD);           // Bold currently highlighted option
+                mvwprintw(W,5+i,5,"*");      // A asterisk for more emphasis
+            }
+            else
+                mvwprintw(W,5+i,5," ");      // Clear old asterisks
+            mvwprintw(W,5+i,6,options[i]);   // Print each option
+            wattroff(W,A_BOLD);              // Turn off bold, if it was on
+        }
+        int input = wgetch(W); // Get input and store it in the variable input
+
+        switch(input){
+            case KEY_DOWN:
+                if(highlight < 2) highlight++;  // Check, then move highlight down
+                break;
+            case KEY_UP:
+                if(highlight > 0) highlight--;  // Check, then move highlight up
+            default:
+                break;
+        }
+        wrefresh(W);            // Refreshes the window
+
+        // A return value of 10 from wgetch indicates that enter was pressed
+        if(input==10) break;
+    }
+
+    // Move to the bottom left and print
+    mvprintw(yMax-1,0"The option selected was %d",highlight+1);
+
+    getch();                      // Wait for input before proceeding
+    delwin(W);                    // Deletes the window and deallocates its memory
+    endwin();                     // End curses mode
+}
+```
+
+We first initialized our environment, entering `curses` mode. The menu is rendered using a window, W, and continuously updated using a while loop. Input is gathered from the keyboard at each iteration,  with the loop terminating once the enter key is pressed (input == 10). The value of highlight at the time that enter is pressed indicates the user's choice, which we print to the screen with `printw`. Usually, we'd have to call `refresh` to have it actually display, but it turns out that `getch` already does this for us, so we're done!
+
+Wow, that was a lot! Hopefully the example helped draw everything together. Don't worry if you can't remember more than a few of the functions presented above -- as you start to work with ncurses, you'll quickly internalize them. Until then, I hope this will be a good reference. If you're feeling adventurous, poke around for other functions in the [how-to](http://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/attrib.html) and build upon the example I provided. Good luck!
 

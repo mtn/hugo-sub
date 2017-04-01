@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on mtn</title>
+    <link>https://mtn.github.io/projects/index.xml</link>
+    <description>Recent content in Projects on mtn</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <copyright>Copyright © 2017 Michael Noronha</copyright>
+    <lastBuildDate>Fri, 31 Mar 2017 17:16:25 -0500</lastBuildDate>
+    <atom:link href="https://mtn.github.io/projects/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Projects</title>
+      <link>https://mtn.github.io/projects/projects/</link>
+      <pubDate>Fri, 31 Mar 2017 17:16:25 -0500</pubDate>
+      
+      <guid>https://mtn.github.io/projects/projects/</guid>
+      <description>&lt;p&gt;Some of the personal projects I&amp;rsquo;ve worked on accompanied by descriptions (aka abbreviated versions of their README).&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Snake with ncurses</title>
+      <link>https://mtn.github.io/projects/snake/</link>
+      <pubDate>Mon, 27 Mar 2017 17:21:16 -0500</pubDate>
+      
+      <guid>https://mtn.github.io/projects/snake/</guid>
+      <description>
+
+&lt;h1 id=&#34;snake&#34;&gt;Snake&lt;/h1&gt;
+
+&lt;p&gt;A terminal implementation of snake built in C with &lt;a href=&#34;https://www.gnu.org/software/ncurses/&#34;&gt;GNU ncurses&lt;/a&gt;. This was both my first graphical (sorta) application in C, and also my first game. It features multiple levels, with different rates of movement and score increases per food consumed. As far as I can tell, the rules I&amp;rsquo;ve implemented are consistent with typical snake games.&lt;/p&gt;
+
+&lt;p&gt;There were a few minor things I didn&amp;rsquo;t love and would consider changing:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;I manipulated &lt;code&gt;halfdelay()&lt;/code&gt; (combined with a timer) to get the behavior I wanted, but hard is still pretty easy. &lt;code&gt;halfdelay()&lt;/code&gt; only takes integer inputs, so I&amp;rsquo;d have to come up with a different solution to address this.&lt;/li&gt;
+&lt;li&gt;Rows are taller than columns, so vertical movement is way faster. This wouldn&amp;rsquo;t be a huge deal to fix with a different timing system.&lt;/li&gt;
+&lt;li&gt;Diamonds might not be the best character for snake body?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/mtn/snake&#34;&gt;Repository&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
