@@ -9,10 +9,9 @@ publishdir = "public"
 author = "Michael Noronha"
 title = "mtn"
 pluralizelisttitles = false
-latestpostcount = 3
 
 [permalinks]
-blog = "blog/:slug/"
+posts = "posts/:filename/"
 
 [params]
 dateform = "Jan 2, 2006"
@@ -28,4 +27,5 @@ github = "mtn"
 email = "mnoronha@uchicago.edu"
 linkedin = "mnoronha"
 social_banner = "img/banner.png"
+latestpostcount = 3
 
