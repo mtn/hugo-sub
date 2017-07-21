@@ -4,4 +4,4 @@ title = "Projects"
 
 +++
 
-Some of the personal projects I've worked on accompanied by descriptions (aka abbreviated versions of their README).
+Some of the personal projects I've worked on with accompanying descriptions.
