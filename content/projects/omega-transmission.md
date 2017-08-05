@@ -14,5 +14,7 @@ As a team member I contributed to code and art:
 * Implemented basic health and shield status bars
 * Integrated sound and music into the existing sound system
 
+<img src="/img/omega_demo.gif" alt="Omega Transmission Gif" style="width: 500px;"/>
+
 [Repository](https://github.com/gamkedo-la/omega-transmission/)
 
