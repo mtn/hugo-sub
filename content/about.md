@@ -6,5 +6,5 @@ title = "about"
 
 Hi, I'm Michael. I like _computer science_, _philosophy_, and _music_. I'm also interested in _behavioral science_.
 
-I'm a student at the [University of Chicago](https://www.uchicago.edu/). This summer, I'm spending three months at [RC](https://www.recurse.com).
+I'm a student at [UChicago](https://www.uchicago.edu/). This summer, I'm spending three months at [RC](https://www.recurse.com).
 
