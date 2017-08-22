@@ -22,6 +22,7 @@ logofile = "img/logo.png"
 faviconfile = "img/logo.png"
 highlightjs = true
 progressively = true
+align_left = true
 lang = "en"
 github = "mtn"
 email = "mnoronha@uchicago.edu"
