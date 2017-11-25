@@ -4,7 +4,7 @@ title = "about"
 
 +++
 
-Hi, I'm Michael. I like _computer science_, _philosophy_, and _music_. I'm also interested in _behavioral science_.
+Hi, I'm Michael. I like computer science, philosophy, math, and music. I'm also interested in behavioral science.
 
-I'm a student at [UChicago](https://www.uchicago.edu/). This summer, I'm spending three months at [RC](https://www.recurse.com).
+I study math and computer science at [UChicago](https://www.uchicago.edu/). This past summer, I spent three wonderful months at [RC](https://www.recurse.com).
 
