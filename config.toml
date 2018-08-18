@@ -14,20 +14,28 @@ pluralizelisttitles = false
 posts = "posts/:filename/"
 
 [params]
+enlarged = true
+exclude_headings = ["blog"]
+large_banner_logo = true
 dateform = "Jan 2, 2006"
 dateformfull = "Mon Jan 2 2006 15:04:05 MST"
 description = "Blog and personal website"
-copyright = "Copyright © 2017 Michael Noronha"
-logofile = "img/logo.png"
-faviconfile = "img/logo.png"
+logofile = "img/logo.jpg"
+faviconfile = "img/favicon.ico"
 highlightjs = true
 progressively = true
 align_left = true
 lang = "en"
 github = "mtn"
+gitlab = "mtn1"
+keybase = "mnoronha"
+githubRepo = "mtn/hugo-super"
 email = "mnoronha@uchicago.edu"
 linkedin = "mnoronha"
 social_banner = "img/banner.png"
 latestpostcount = 3
 googleanalytics = "UA-96604723-1"
+uselatex = true
+disablefancyfonts = false
+titlestyle = "lowercase"
 
